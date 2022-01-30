@@ -143,3 +143,17 @@ contract ComptrollerV5Storage is ComptrollerV4Storage {
     /// @notice Last block at which a contributor's COMP rewards have been allocated
     mapping(address => uint) public lastContributorBlock;
 }
+
+//New code
+contract ComptrollerV6Storage is ComptrollerV5Storage {
+
+    /** 
+     * @notice Addition to the Pause Guardian storage slots in V2. 
+     * Appended as V6 to avoid introducing storage slot conflicts.
+     */
+
+
+    /// @notice Whether a cToken is paused for borrowing or not
+    mapping(address => bool) public collateralGuardianPaused; 
+}
+
