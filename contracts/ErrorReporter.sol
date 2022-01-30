@@ -19,7 +19,8 @@ contract ComptrollerErrorReporter {
         REJECTION,
         SNAPSHOT_ERROR,
         TOO_MANY_ASSETS,
-        TOO_MUCH_REPAY
+        TOO_MUCH_REPAY,
+        COLLATERAL_PAUSED
     }
 
     enum FailureInfo {
