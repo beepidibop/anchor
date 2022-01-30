@@ -12,7 +12,7 @@ import "./Governance/IINV.sol";
  * @title Compound's Comptroller Contract
  * @author Compound
  */
-contract Comptroller is ComptrollerV5Storage, ComptrollerInterface, ComptrollerErrorReporter, ExponentialNoError {
+contract Comptroller is ComptrollerV6Storage, ComptrollerInterface, ComptrollerErrorReporter, ExponentialNoError {
     /// @notice Emitted when an admin supports a market
     event MarketListed(CToken cToken);
 
@@ -721,6 +721,13 @@ contract Comptroller is ComptrollerV5Storage, ComptrollerInterface, ComptrollerE
             if (oErr != 0) { // semi-opaque error code, we assume NO_ERROR == 0 is invariant between upgrades
                 return (Error.SNAPSHOT_ERROR, 0, 0);
             }
+            
+            // New code
+            // Check if the collateral is paused, only for borrowing
+            if (collateralGuardianPaused[address(asset)] == true && borrowAmount>0){
+                return (Error.COLLATERAL_PAUSED, 0, 0);
+            }
+
             vars.collateralFactor = Exp({mantissa: markets[address(asset)].collateralFactorMantissa});
             vars.exchangeRate = Exp({mantissa: vars.exchangeRateMantissa});
 
@@ -1034,6 +1041,17 @@ contract Comptroller is ComptrollerV5Storage, ComptrollerInterface, ComptrollerE
 
         seizeGuardianPaused = state;
         emit ActionPaused("Seize", state);
+        return state;
+    }
+
+    //New code
+    function _setCollateralPaused(CToken cToken, bool state) public returns (bool) {
+        require(markets[address(cToken)].isListed, "cannot pause a market that is not listed");
+        require(msg.sender == pauseGuardian || msg.sender == admin, "only pause guardian and admin can pause");
+        require(msg.sender == admin || state == true, "only admin can unpause");
+
+        collateralGuardianPaused[address(cToken)] = state;
+        emit ActionPaused(cToken, "Collateral", state);
         return state;
     }
 
