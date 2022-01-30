@@ -724,7 +724,7 @@ contract Comptroller is ComptrollerV6Storage, ComptrollerInterface, ComptrollerE
             
             // New code
             // Check if the collateral is paused, only for borrowing
-            if (collateralGuardianPaused[address(asset)] == true && borrowAmount>0){
+            if (collateralGuardianPaused[address(asset)] == true && borrowAmount > 0 && vars.cTokenBalance > 0){
                 return (Error.COLLATERAL_PAUSED, 0, 0);
             }
 
